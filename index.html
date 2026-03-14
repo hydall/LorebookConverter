@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lorebook Converter</title>
+    <meta name="description"
+        content="Convert your character lorebooks from Janitor.ai format directly into SillyTavern, Tavo, and Glaze format with ease.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="background">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <main class="container">
+        <header class="header">
+            <div style="display: flex; justify-content: flex-end; margin-bottom: -2rem;">
+                <button id="lang-toggle" class="btn secondary-btn small-btn"
+                    style="width: auto !important; padding: 0.3rem 0.6rem; font-size: 0.8rem; background: rgba(0,0,0,0.2); border: 1px solid var(--card-border);">RU</button>
+            </div>
+            <h1>Lorebook <span>Converter</span></h1>
+            <p data-i18n="subtitle">Janitor.ai &rarr; SillyTavern format</p>
+        </header>
+
+        <div class="card">
+            <!-- Instructions and Text Input -->
+            <div class="text-input-container">
+                <div class="guide-box"
+                    style="background: rgba(139, 92, 246, 0.1); border: 1px dashed var(--primary); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                    <h4 style="margin-top: 0; margin-bottom: 0.5rem; color: var(--primary);" data-i18n="guide_title">📖
+                        How to copy the lorebook:
+                    </h4>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0; margin-bottom: 0.8rem; font-style: italic;"
+                        data-i18n="guide_note">⚠️ Works only if the bot creator made the lorebook Public.
+                    </p>
+                    <ol
+                        style="margin: 0; padding-left: 1.2rem; font-size: 0.85rem; color: var(--text-color); line-height: 1.5;">
+                        <li data-i18n="step_1">Open the desired bot on Janitor.ai</li>
+                        <li data-i18n="step_2">In the <strong>more</strong> section, find <strong>Lorebook</strong> and
+                            click on it</li>
+                        <li data-i18n="step_3">On the opened page, click on <strong>View Script</strong></li>
+                        <li data-i18n="step_4">Copy all the content of the opened window (text will start with
+                            <strong>[</strong>, activationMode, etc.)
+                        </li>
+                        <li data-i18n="step_5">Paste the copied text into the field below and click "Convert".</li>
+                    </ol>
+                </div>
+
+                <textarea id="text-input" class="textarea-input" data-i18n-placeholder="textarea_placeholder"
+                    placeholder="Paste copied text (starting with [ or {) here..." rows="4"></textarea>
+                <button id="parse-btn" class="btn primary-btn" style="width: 100%; margin-top: 0.5rem;"
+                    data-i18n="parse_btn">Convert lorebook text</button>
+            </div>
+
+            <div class="divider">
+                <span data-i18n="or">or</span>
+            </div>
+
+            <div id="drop-area" class="drop-area">
+                <div class="icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
+                    </svg>
+                </div>
+                <h3 data-i18n="drop_title">Choose file</h3>
+                <p data-i18n="drop_desc">Drop lorebook JSON here</p>
+                <input type="file" id="file-input" accept=".json,.html" hidden>
+            </div>
+
+            <div id="result-area" class="result-area hidden">
+                <div class="success-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h3 id="file-name">filename.json</h3>
+                <p data-i18n="success_msg">Successfully converted! Found <span id="entry-count">0</span> entries.</p>
+
+                <div class="actions">
+                    <button id="download-btn" class="btn primary-btn" data-i18n="download_btn">Download for ST / Tavo /
+                        Glaze</button>
+                    <button id="reset-btn" class="btn secondary-btn" data-i18n="reset_btn">Reset</button>
+                </div>
+            </div>
+
+            <div id="error-area" class="error-area hidden">
+                <div class="error-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <h3 data-i18n="error_title">Conversion Error</h3>
+                <p id="error-message">Invalid format.</p>
+
+                <button id="error-reset-btn" class="btn secondary-btn" data-i18n="try_again_btn">Try again</button>
+            </div>
+        </div>
+
+        <footer id="footer-links"
+            style="margin-top: 2rem; text-align: center; font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">
+            <p style="margin-bottom: 0.5rem;" data-i18n="footer_links">Полезные ссылки для RP комьюнити:</p>
+            <div
+                style="display: flex; flex-direction: column; gap: 0.5rem; justify-content: center; align-items: center;">
+                <a href="https://t.me/tavoaiRoleplaydlyavcex" target="_blank"
+                    style="color: var(--primary); text-decoration: none; padding: 0.3rem 0.8rem; border-radius: 20px; background: rgba(0,0,0,0.3); border: 1px solid rgba(139, 92, 246, 0.3);">
+                    ✈️ Русское сообщество Tavo AI
+                </a>
+                <a href="https://t.me/glazeapp" target="_blank"
+                    style="color: var(--primary); text-decoration: none; padding: 0.3rem 0.8rem; border-radius: 20px; background: rgba(0,0,0,0.3); border: 1px solid rgba(139, 92, 246, 0.3);">
+                    ✈️ Канал приложения Glaze
+                </a>
+            </div>
+        </footer>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
