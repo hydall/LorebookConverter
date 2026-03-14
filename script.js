@@ -10,13 +10,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const entryCountEl = document.getElementById('entry-count');
     const errorMessageEl = document.getElementById('error-message');
     const langToggleBtn = document.getElementById('lang-toggle');
-    const footerLinks = document.getElementById('footer-links');
+    const ruCommunityLinks = document.getElementById('ru-community-links');
 
     // --- Internationalization (i18n) ---
     const translations = {
         en: {
             "title": "Lorebook Converter",
-            "meta_desc": "Convert your character lorebooks from Janitor.ai format directly into SillyTavern, Tavo, and Glaze format with ease.",
+            "meta_desc": "Convert your character lorebooks from Janitor.ai format directly into SillyTavern format with ease.",
             "subtitle": "Janitor.ai &rarr; SillyTavern format",
             "guide_title": "📖 How to copy the lorebook:",
             "guide_note": "⚠️ Works only if the bot creator made the lorebook Public.",
@@ -31,23 +31,27 @@ document.addEventListener('DOMContentLoaded', () => {
             "drop_title": "Choose file",
             "drop_desc": "Drop lorebook JSON here",
             "success_msg": "Successfully converted! Found <span id=\"entry-count\">0</span> entries.",
-            "download_btn": "Download for ST / Tavo / Glaze",
+            "download_btn": "Download",
             "reset_btn": "Reset",
             "error_title": "Conversion Error",
             "debug_title": "Server response (For debugging):",
             "try_again_btn": "Try again",
-            "footer_links": "Useful links for the RP community:",
+            "footer_links": "Useful links:",
             "err_empty": "Please paste the lorebook JSON text.",
             "err_invalid_json": "Invalid JSON format.",
             "err_file_type": "Please upload a JSON or HTML lorebook file.",
             "err_no_lorebook_in_html": "Could not find lorebook in HTML file.",
             "err_read_file": "Error reading file.",
             "err_already_st": "This file already looks like a SillyTavern lorebook.",
-            "err_unexpected_format": "Unexpected format. Expected Janitor.ai format (array of objects)."
+            "err_unexpected_format": "Unexpected format. Expected Janitor.ai format (array of objects).",
+            "donate_text": "Support Me",
+            "donate_url": "https://buymeacoffee.com/hydall",
+            "donate_color": "#FFDD00",
+            "donate_icon": `<img src="assets/bmc-logo.svg" style="height: 16px; width: 14px; filter: drop-shadow(0 0 1px rgba(0,0,0,0.5));">`
         },
         ru: {
             "title": "Конвертер лорбуков",
-            "meta_desc": "Легко конвертируйте лорбуки персонажей из формата Janitor.ai в форматы SillyTavern, Tavo и Glaze.",
+            "meta_desc": "Легко конвертируйте лорбуки персонажей из формата Janitor.ai в формат SillyTavern.",
             "subtitle": "Janitor.ai &rarr; формат SillyTavern",
             "guide_title": "📖 Как скопировать лорбук:",
             "guide_note": "⚠️ Работает только если создатель бота открыл доступ к лорбуку (Public).",
@@ -57,24 +61,28 @@ document.addEventListener('DOMContentLoaded', () => {
             "step_4": "Скопируйте всё содержимое открывшегося окошка (текст будет начинаться с <strong>[</strong>, activationMode и т.д.",
             "step_5": "Вставьте скопированный текст в поле ниже и нажмите «Конвертировать».",
             "textarea_placeholder": "Вставьте скопированный текст (начинается с [ или {) сюда...",
-            "parse_btn": "Конвертировать текст лорбука",
+            "parse_btn": "Конвертировать лорбук",
             "or": "или",
             "drop_title": "Выбрать файл",
             "drop_desc": "Перетащите JSON лорбука сюда",
             "success_msg": "Успешно конвертировано! Найдено <span id=\"entry-count\">0</span> записей.",
-            "download_btn": "Скачать для ST / Tavo / Glaze",
+            "download_btn": "Скачать",
             "reset_btn": "Сбросить",
             "error_title": "Ошибка конвертации",
             "debug_title": "Ответ сервера (Для отладки):",
             "try_again_btn": "Попробовать снова",
-            "footer_links": "Полезные ссылки для RP комьюнити:",
+            "footer_links": "Полезные материалы:",
             "err_empty": "Пожалуйста, вставьте текст JSON лорбука.",
             "err_invalid_json": "Неверный формат JSON.",
             "err_file_type": "Пожалуйста, загрузите JSON или HTML файл лорбука.",
             "err_no_lorebook_in_html": "Не удалось найти лорбук в HTML файле.",
             "err_read_file": "Ошибка при чтении файла.",
             "err_already_st": "Этот файл уже выглядит как лорбук SillyTavern.",
-            "err_unexpected_format": "Неожиданный формат. Ожидается формат Janitor.ai (массив объектов)."
+            "err_unexpected_format": "Неожиданный формат. Ожидается формат Janitor.ai (массив объектов).",
+            "donate_text": "Поддержать меня",
+            "donate_url": "https://boosty.to/hydall",
+            "donate_color": "#f15f2c",
+            "donate_icon": `<img src="assets/boosty.svg" style="height: 16px; width: 16px; filter: invert(1) brightness(2);">`
         }
     };
 
@@ -98,6 +106,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (key === 'success_msg' && el.querySelector('#entry-count')) {
                 const count = document.getElementById('entry-count').textContent;
                 el.innerHTML = dict[key].replace('<span id="entry-count">0</span>', `<span id="entry-count">${count}</span>`);
+            } else if (key === 'donate_link') {
+                el.href = dict['donate_url'];
+                el.innerHTML = `${dict['donate_icon']} ${dict['donate_text']}`;
+
+                // Update hover color dynamics
+                el.onmouseover = () => { el.style.opacity = '1'; el.style.background = dict['donate_color']; el.style.color = '#000'; };
+                el.onmouseout = () => { el.style.opacity = '0.9'; el.style.background = 'rgba(255,255,255,0.1)'; el.style.color = 'var(--text-main)'; };
             } else if (dict[key]) {
                 el.innerHTML = dict[key];
             }
@@ -111,13 +126,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Hide Telegram links if not Russian
-        if (footerLinks) {
-            footerLinks.style.display = currentLang === 'ru' ? 'block' : 'none';
+        if (ruCommunityLinks) {
+            ruCommunityLinks.style.display = currentLang === 'ru' ? 'block' : 'none';
         }
 
-        // Update toggle button text
-        if (langToggleBtn) {
-            langToggleBtn.textContent = currentLang === 'ru' ? 'EN' : 'RU';
+        // Update toggle button text to show current language
+        const langLabel = document.getElementById('lang-label');
+        if (langLabel) {
+            langLabel.textContent = currentLang.toUpperCase();
         }
 
         // Update document title and meta
