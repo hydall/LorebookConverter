@@ -1,6 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const dropArea = document.getElementById('drop-area');
-    const fileInput = document.getElementById('file-input');
     const resultArea = document.getElementById('result-area');
     const errorArea = document.getElementById('error-area');
     const downloadBtn = document.getElementById('download-btn');
@@ -18,8 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
             "title": "Lorebook Converter",
             "meta_desc": "Convert your character lorebooks from Janitor.ai format directly into SillyTavern format with ease.",
             "subtitle": "Janitor.ai &rarr; SillyTavern format",
-            "guide_title": "📖 How to copy the lorebook:",
-            "guide_note": "⚠️ Works only if the bot creator made the lorebook Public.",
+            "guide_title": "How to copy the lorebook:",
+            "guide_note": "Works only if the bot creator made the lorebook Public.",
             "step_1": "Open the desired bot on Janitor.ai",
             "step_2": "In the <strong>more</strong> section, find <strong>Lorebook</strong> and click on it",
             "step_3": "On the opened page, click on <strong>View Script</strong>",
@@ -32,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
             "drop_desc": "Drop lorebook JSON here",
             "success_msg": "Successfully converted! Found <span id=\"entry-count\">0</span> entries.",
             "download_btn": "Download",
-            "reset_btn": "Reset",
+            "reset_btn": "Convert another lorebook",
             "error_title": "Conversion Error",
             "debug_title": "Server response (For debugging):",
             "try_again_btn": "Try again",
@@ -53,8 +51,8 @@ document.addEventListener('DOMContentLoaded', () => {
             "title": "Конвертер лорбуков",
             "meta_desc": "Легко конвертируйте лорбуки персонажей из формата Janitor.ai в формат SillyTavern.",
             "subtitle": "Janitor.ai &rarr; формат SillyTavern",
-            "guide_title": "📖 Как скопировать лорбук:",
-            "guide_note": "⚠️ Работает только если создатель бота открыл доступ к лорбуку (Public).",
+            "guide_title": "Как скопировать лорбук:",
+            "guide_note": "Работает только если создатель бота открыл доступ к лорбуку (Public).",
             "step_1": "Откройте нужного бота на сайте Janitor.ai",
             "step_2": "В блоке <strong>more</strong> найдите <strong>Lorebook</strong> и нажмите на него",
             "step_3": "На открывшейся странице нажмите на <strong>View Script</strong>",
@@ -67,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
             "drop_desc": "Перетащите JSON лорбука сюда",
             "success_msg": "Успешно конвертировано! Найдено <span id=\"entry-count\">0</span> записей.",
             "download_btn": "Скачать",
-            "reset_btn": "Сбросить",
+            "reset_btn": "Сконвертировать другой лорбук",
             "error_title": "Ошибка конвертации",
             "debug_title": "Ответ сервера (Для отладки):",
             "try_again_btn": "Попробовать снова",
@@ -161,91 +159,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const textInputContainer = document.querySelector('.text-input-container');
     const textInput = document.getElementById('text-input');
     const parseBtn = document.getElementById('parse-btn');
-    const urlInputContainer = document.querySelector('.url-input-container');
-    const divider = document.querySelector('.divider');
 
     let convertedData = null;
     let originalFileName = "";
-
-    // Trigger file input click when clicking on drop area
-    dropArea.addEventListener('click', () => {
-        fileInput.click();
-    });
-
-    // Handle drag events
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        dropArea.addEventListener(eventName, preventDefaults, false);
-    });
-
-    function preventDefaults(e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
-
-    ['dragenter', 'dragover'].forEach(eventName => {
-        dropArea.addEventListener(eventName, () => {
-            dropArea.classList.add('dragover');
-        }, false);
-    });
-
-    ['dragleave', 'drop'].forEach(eventName => {
-        dropArea.addEventListener(eventName, () => {
-            dropArea.classList.remove('dragover');
-        }, false);
-    });
-
-    // Handle dropped files
-    dropArea.addEventListener('drop', (e) => {
-        const dt = e.dataTransfer;
-        const files = dt.files;
-        if (files.length > 0) {
-            handleFile(files[0]);
-        }
-    });
-
-    // Handle selected files
-    fileInput.addEventListener('change', (e) => {
-        if (e.target.files.length > 0) {
-            handleFile(e.target.files[0]);
-        }
-    });
-
-    function handleFile(file) {
-        if (!file.name.endsWith('.json') && !file.name.endsWith('.html')) {
-            showError(getTranslation('err_file_type'));
-            return;
-        }
-
-        originalFileName = file.name;
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const content = e.target.result;
-
-            if (file.name.endsWith('.html')) {
-                const parsed = extractJanitorLorebookFromHTML(content);
-                if (parsed) {
-                    originalFileName = extractTitleFromHTML(content) || "janitor_import.json";
-                    processLorebook(parsed);
-                } else {
-                    showError(getTranslation('err_no_lorebook_in_html'), content);
-                }
-                return;
-            }
-
-            try {
-                const data = JSON.parse(content);
-                processLorebook(data);
-            } catch (err) {
-                showError(getTranslation('err_invalid_json'), content);
-                console.error(err);
-            }
-        };
-        reader.onerror = () => {
-            showError(getTranslation('err_read_file'));
-        };
-        reader.readAsText(file);
-    }
 
     // --- Text Input Logic ---
     parseBtn.addEventListener('click', () => {
@@ -264,42 +180,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error(err);
         }
     });
-
-    // --- Extracting logic ---
-    function extractTitleFromHTML(htmlText) {
-        const match = htmlText.match(/<title>(.*?)<\/title>/);
-        if (match && match[1]) {
-            let title = match[1].replace(/\|.*$/i, '').trim();
-            return title.replace(/[^a-z0-9а-яё]/gi, '_') + '.json';
-        }
-        return null;
-    }
-
-    function extractJanitorLorebookFromHTML(htmlText) {
-        try {
-            const regex = /window\.mbxM\.push\(\s*JSON\.parse\(\s*"(.*?)"\s*\)\s*\)/g;
-            let match;
-
-            while ((match = regex.exec(htmlText)) !== null) {
-                if (match[1]) {
-                    const unescapedString = JSON.parse('"' + match[1] + '"');
-                    const outerJSON = JSON.parse(unescapedString);
-
-                    const viewStoreKey = Object.keys(outerJSON).find(k => k.includes('ViewScriptStore') || k.includes('viewScriptStore'));
-                    if (viewStoreKey) {
-                        const viewStore = outerJSON[viewStoreKey];
-                        if (viewStore && viewStore.script && viewStore.script.script) {
-                            return JSON.parse(viewStore.script.script);
-                        }
-                    }
-                }
-            }
-        } catch (e) {
-            console.error("Failed to parse via default mbxM route", e);
-        }
-
-        return null;
-    }
 
     function processLorebook(data) {
         // If it's already an ST format
@@ -385,8 +265,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showSuccess(filename, count) {
         if (textInputContainer) textInputContainer.classList.add('hidden');
-        if (divider) divider.classList.add('hidden');
-        if (dropArea) dropArea.classList.add('hidden');
         errorArea.classList.add('hidden');
         resultArea.classList.remove('hidden');
 
@@ -397,8 +275,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showError(message, debugText = null) {
         if (textInputContainer) textInputContainer.classList.add('hidden');
-        if (divider) divider.classList.add('hidden');
-        if (dropArea) dropArea.classList.add('hidden');
         resultArea.classList.add('hidden');
         errorArea.classList.remove('hidden');
         errorMessageEl.textContent = message;
@@ -407,14 +283,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function resetUI() {
         convertedData = null;
         originalFileName = "";
-        fileInput.value = "";
 
         resultArea.classList.add('hidden');
         errorArea.classList.add('hidden');
 
         if (textInputContainer) textInputContainer.classList.remove('hidden');
-        if (divider) divider.classList.remove('hidden');
-        if (dropArea) dropArea.classList.remove('hidden');
     }
 
     resetBtn.addEventListener('click', resetUI);
