@@ -329,6 +329,21 @@ body {
     opacity: 1;
 }
 
+/* --- Promo Banner JAR --- */
+.promo-banner-jar {
+    background: rgba(229, 100, 92, 0.1);
+    border-color: rgba(229, 100, 92, 0.3);
+}
+
+.promo-banner-jar:hover {
+    background: rgba(229, 100, 92, 0.15);
+    border-color: rgba(229, 100, 92, 0.5);
+}
+
+.promo-banner-jar .promo-banner-arrow {
+    color: #e5645c;
+}
+
 @media (max-width: 600px) {
     .promo-banner {
         padding: 0.8rem 1rem;
